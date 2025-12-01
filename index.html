@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>효과적인 교수법 분석 리포트</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #1e40af;
+      --dark-text: #1f2937;
+      --light-text: #6b7280;
+      --background-color: #f4f6f9;
+      --card-background: #ffffff;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      --border-radius: 10px;
+      --highlight-yellow: #ffeb3b;
+    }
+
+    body {
+      font-family: 'Malgun Gothic', 'Nanum Gothic', 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--dark-text);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    .global-header {
+      background-color: var(--card-background);
+      border-bottom: 3px solid var(--primary-color);
+      padding: 15px 0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      margin-bottom: 25px;
+    }
+
+    .global-header h1 {
+      color: var(--dark-text);
+      font-size: 1.5em;
+      margin: 0 auto;
+      max-width: 1500px;
+      padding: 0 20px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background-color: var(--card-background);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 25px;
+      border: 1px solid #e5e7eb;
+      transition: all 0.3s;
+    }
+
+    .main-content {
+      display: flex;
+      gap: 25px;
+      min-height: 750px;
+    }
+
+    .sidebar {
+      flex: 0 0 280px;
+      padding: 0;
+      height: fit-content;
+    }
+
+    .sidebar-card {
+      border: none;
+      box-shadow: none;
+      background-color: transparent;
+    }
+
+    .sidebar-top {
+      padding: 20px 25px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 20px;
+      border-radius: var(--border-radius);
+      background-color: var(--card-background);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar-top h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+
+    .file-upload-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .custom-file-upload {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+    .custom-file-upload:hover {
+      background-color: #0056b3;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    }
+
+    #excelFile {
+      display: none;
+    }
+
+    .file-upload-status {
+      color: var(--light-text);
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+    .tab-buttons-wrapper h2 {
+      color: var(--primary-color);
+      padding: 18px 25px;
+      margin: 0;
+      font-size: 1.25em;
+      font-weight: 700;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tab-buttons {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 0;
+    }
+
+    .tab-button {
+      padding: 14px 25px;
+      cursor: pointer;
+      border: none;
+      background-color: transparent;
+      color: var(--dark-text);
+      font-weight: 500;
+      text-align: left;
+      transition: all 0.2s;
+      font-size: 1em;
+      border-left: 4px solid transparent;
+      margin-bottom: 4px;
+    }
+
+    .tab-button:hover {
+      background-color: #f3f3f3;
+    }
+
+    .tab-button.active {
+      background-color: #eef2ff;
+      color: var(--primary-color);
+      font-weight: 700;
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 0;
+    }
+
+    .main-content-title {
+      padding: 0 0 20px 0;
+      border-bottom: 1px solid var(--light-border);
+      margin-bottom: 25px;
+    }
+
+    .main-content-title h1 {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: var(--dark-text);
+      margin: 0;
+    }
+
+    .content-display {
+      display: none;
+      padding: 0 25px 25px 25px;
+    }
+
+    .content-display.active {
+      display: block;
+    }
+
+    .chart-container-box {
+      height: 400px;
+      display: flex;
+      gap: 25px;
+      margin-bottom: 25px;
+    }
+
+    .chart-box {
+      flex: 1;
+      padding: 20px;
+      height: 100%;
+      border-radius: var(--border-radius);
+      border: 1px solid #e5e7eb;
+      box-shadow: var(--shadow);
+      background-color: var(--card-background);
+    }
+
+    .chart-box h2 {
+      color: var(--primary-color);
+      border-bottom: 1px solid #f1f1f1;
+      padding-bottom: 15px;
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      font-weight: 600;
+    }
+
+    .narrative-list {
+      max-height: 550px;
+      overflow-y: scroll;
+      padding-right: 15px;
+    }
+
+    .data-item {
+      margin-bottom: 10px;
+      border-left: 4px solid var(--primary-color);
+      padding: 12px 15px;
+      background-color: #f7fcfc;
+      border-radius: 4px;
+      font-size: 0.95em;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .data-item strong {
+      color: var(--dark-text);
+      font-weight: 700;
+      margin-right: 15px;
+      background-color: var(--highlight-yellow);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-weight: 600;
+      background-color: #fff0f0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 50px;
+      border-top: 1px solid #e9ecef;
+      color: var(--light-text);
+      font-size: 0.9em;
+      background-color: var(--card-background);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="global-header">
+    <div class="container">
+      <h1 class="hidden-title">교수법 분석 리포트</h1>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="main-content">
+
+      <div class="sidebar">
+        <div class="sidebar-top">
+          <h2>파일 관리</h2>
+          <div class="file-upload-group">
+            <label for="excelFile" class="custom-file-upload">
+              <i class="material-icons" style="font-size: 20px;">cloud_upload</i>
+              엑셀 파일 업로드
+            </label>
+            <input type="file" id="excelFile" multiple accept=".xls,.xlsx" onchange="processFiles(this.files)">
+            <p id="fileStatus" class="file-upload-status">선택된 파일 없음</p>
+          </div>
+        </div>
+
+        <div class="card tab-buttons-wrapper">
+          <h2>📊 분석 항목</h2>
+          <div class="tab-buttons">
+            <button class="tab-button active" onclick="openContent(event, 'chartsArea')">📈 그래프</button>
+            <button class="tab-button" onclick="openContent(event, 'strengthsContent')">👍 장점</button>
+            <button class="tab-button" onclick="openContent(event, 'complementsContent')">✍️ 보완점</button>
+            <button class="tab-button" onclick="openContent(event, 'notesContent')">📘 수업내용 필기</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-area">
+
+        <div class="main-content-title">
+          <h1 id="mainTitle">효과적인 교수법 분석 리포트</h1>
+        </div>
+
+        <div id="chartsArea" class="content-display active">
+          <div class="chart-container-box">
+            <div class="chart-box">
+              <h2>항목별 평균 비교</h2>
+              <canvas id="averageChart"></canvas>
+            </div>
+            <div class="chart-box">
+              <h2>개별 파일 원 데이터 비교</h2>
+              <canvas id="rawDataChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="strengthsContent" class="content-display card">
+          <h2>👍 장점 분석 결과</h2>
+          <div id="strengthsList" class="narrative-list">
+            <div class="loading-message">엑셀 파일을 선택해 분석을 시작하세요.</div>
+          </div>
+        </div>
+
+        <div id="complementsContent" class="content-display card">
+          <h2>✍️ 보완점 분석 결과</h2>
+          <div id="complementsList" class="narrative-list">
+            <div class="loading-message">엑셀 파일을 선택해 분석을 시작하세요.</div>
+          </div>
+        </div>
+
+        <div id="notesContent" class="content-display card">
+          <h2>📘 수업내용 필기 분석 결과</h2>
+          <div id="notesList" class="narrative-list">
+            <div class="loading-message">엑셀 파일을 선택해 분석을 시작하세요.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Copyright © LeeKiJoon
+  </div>
+
+  <script>
+    const METRIC_MAP = {
+      '교수법 1 (중요도)': { score: [13, 12], desc: [13, 1] },
+      '교수법 2 (중요도)': { score: [14, 12], desc: [14, 1] },
+      '교수법 3 (중요도)': { score: [15, 12], desc: [15, 1] },
+      '교수법 4 (중요도)': { score: [16, 12], desc: [16, 1] },
+      '교수법 5 (중요도)': { score: [17, 12], desc: [17, 1] },
+      '교수법 6 (중요도)': { score: [18, 12], desc: [18, 1] },
+      '교수법 7 (중요도)': { score: [19, 12], desc: [19, 1] },
+      '교수법 8 (중요도)': { score: [20, 12], desc: [20, 1] },
+      '교수법 9 (중요도)': { score: [21, 12], desc: [21, 1] },
+      '교수법 10 (중요도)': { score: [22, 12], desc: [22, 1] },
+      '교수법 2 (반영도)': { score: [14, 13], desc: [14, 1] },
+      '교수법 6 (반영도)': { score: [18, 13], desc: [18, 1] },
+      '교수법 10 (반영도)': { score: [22, 13], desc: [22, 1] },
+    };
+
+    const TEXT_CELLS = {
+      'strengths': [23, 0],
+      'complements': [24, 0],
+      'notes': [25, 0]
+    };
+
+    const X_AXIS_LABELS = [
+      '교수법 1', '교수법 2', '교수법 3', '교수법 4', '교수법 5',
+      '교수법 6', '교수법 7', '교수법 8', '교수법 9', '교수법 10',
+      '반영도 2', '반영도 6', '반영도 10'
+    ];
+
+    let chartAvg = null;
+    let chartRaw = null;
+
+    // ------------------- Tab Functionality -------------------
+    function openContent(evt, contentId) {
+      const contentDisplays = document.getElementsByClassName("content-display");
+      for (let i = 0; i < contentDisplays.length; i++) {
+        contentDisplays[i].classList.remove('active');
+      }
+
+      const tabButtons = document.getElementsByClassName("tab-button");
+      for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove('active');
+      }
+
+      document.getElementById(contentId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+
+    // ------------------- Data Processing Utilities -------------------
+
+    function extractUserName(filename) {
+      const parts = filename.split('_');
+      if (parts.length >= 5) {
+        return parts[4].trim();
+      }
+      return "알 수 없는 사용자";
+    }
+
+    function extractStudentName(filename) {
+      const baseName = filename.split('/').pop().split('\\').pop();
+      const parts = baseName.split('_');
+      if (parts.length >= 6) {
+        let namePart = parts[5];
+        return namePart.split('[')[0].split('.')[0].trim();
+      }
+      return "알 수 없는 학생";
+    }
+
+    function parseExcel(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+            const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true });
+            resolve(sheetData);
+          } catch (error) {
+            reject(`엑셀 파싱 오류: ${error.message}`);
+          }
+        };
+        reader.onerror = (error) => reject(`파일 읽기 오류: ${error.message}`);
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    const cleanText = (text, prefix) => {
+      let cleaned = String(text || '').replace(new RegExp(`^${prefix}:`), '').trim();
+
+      if (cleaned.length === 0 || cleaned === '(내용 없음)') {
+        return `<span class="error-message">내용이 누락되었습니다.</span>`;
+      }
+      return cleaned;
+    };
+
+    // ------------------- Main Analysis Logic -------------------
+
+    async function processFiles(files) {
+      document.getElementById('fileStatus').textContent = `총 ${files.length}개의 파일을 로드 중...`;
+
+      const initialMessage = `<div class="loading-message">총 ${files.length}개의 파일을 분석 중입니다. 잠시만 기다려 주세요...</div>`;
+      document.getElementById('strengthsList').innerHTML = initialMessage;
+      document.getElementById('complementsList').innerHTML = initialMessage;
+      document.getElementById('notesList').innerHTML = initialMessage;
+
+      if (files.length === 0) {
+        document.getElementById('fileStatus').textContent = `선택된 파일 없음`;
+        return;
+      }
+
+      if (chartAvg) chartAvg.destroy();
+      if (chartRaw) chartRaw.destroy();
+
+      const totalScores = Array(X_AXIS_LABELS.length).fill(0);
+      const validCounts = Array(X_AXIS_LABELS.length).fill(0);
+      const allRawScores = [];
+
+      const textStrengths = [];
+      const textComplements = [];
+      const textNotes = [];
+
+      let fileCount = 0;
+      let allDescriptions = [];
+      let userName = "사용자";
+
+      const metricKeys = Object.keys(METRIC_MAP);
+
+      for (const file of files) {
+        try {
+          const sheetData = await parseExcel(file);
+          const studentName = extractStudentName(file.name);
+
+          if (fileCount === 0) {
+            userName = extractUserName(file.name);
+            document.getElementById('mainTitle').textContent = `${userName} 님의 효과적인 교수법 분석 리포트`;
+            document.getElementById('fileStatus').textContent = `파일 로드 완료 (분석 대상: ${files.length}개)`;
+          }
+
+          const studentScores = [];
+          let hasValidScore = false;
+
+          metricKeys.forEach((key, index) => {
+            const { score: [rScore, cScore], desc: [rDesc, cDesc] } = METRIC_MAP[key];
+
+            const rawScore = sheetData[rScore] && sheetData[rScore][cScore] !== undefined ? sheetData[rScore][cScore] : undefined;
+            const score = parseFloat(rawScore);
+
+            if (fileCount === 0) {
+              const rawDesc = sheetData[rDesc] && sheetData[rDesc][cDesc] !== undefined ? sheetData[rDesc][cDesc] : '설명 없음';
+              allDescriptions.push(String(rawDesc).trim());
+            }
+
+            if (!isNaN(score) && score >= 1 && score <= 5) {
+              totalScores[index] += score;
+              validCounts[index]++;
+              studentScores.push(score);
+              hasValidScore = true;
+            } else {
+              studentScores.push(null);
+            }
+          });
+
+          const getCellValue = (r, c) => sheetData[r] && sheetData[r][c] !== undefined ? sheetData[r][c] : "(내용 없음)";
+          const strengths = getCellValue(TEXT_CELLS.strengths[0], TEXT_CELLS.strengths[1]);
+          const complements = getCellValue(TEXT_CELLS.complements[0], TEXT_CELLS.complements[1]);
+          const notes = getCellValue(TEXT_CELLS.notes[0], TEXT_CELLS.notes[1]);
+
+          const strengthsContent = cleanText(strengths, '장점');
+          const complementsContent = cleanText(complements, '보완점');
+          const notesContent = cleanText(notes, '수업내용 필기');
+
+          const formatTextItem = (name, content) => `
+                        <div class="data-item">
+                            <strong>[${name}]</strong> ${content}
+                        </div>
+                    `;
+
+          textStrengths.push(formatTextItem(studentName, strengthsContent));
+          textComplements.push(formatTextItem(studentName, complementsContent));
+          textNotes.push(formatTextItem(studentName, notesContent));
+
+          if (hasValidScore) {
+            allRawScores.push({ student: studentName, scores: studentScores });
+            fileCount++;
+          }
+
+        } catch (error) {
+          const errorMessage = `<div class="data-item" style="border-color: #dc3545; background-color:#fef0f0;"><strong>[${extractStudentName(file.name)}]</strong> <span class="error-message">파일 처리 중 오류 발생: ${error}</span></div>`;
+          textStrengths.push(errorMessage);
+          textComplements.push(errorMessage);
+          textNotes.push(errorMessage);
+        }
+      }
+
+      const averageScores = totalScores.map((sum, index) => {
+        return validCounts[index] > 0 ? (sum / validCounts[index]).toFixed(2) : 0;
+      });
+
+      drawAverageChart(averageScores, fileCount, allDescriptions);
+      drawRawDataChart(allRawScores, allDescriptions);
+
+      document.getElementById('strengthsList').innerHTML = textStrengths.join('');
+      document.getElementById('complementsList').innerHTML = textComplements.join('');
+      document.getElementById('notesList').innerHTML = textNotes.join('');
+    }
+
+    // ------------------- Chart Drawing -------------------
+
+    function drawAverageChart(averageScores, fileCount, allDescriptions) {
+      const ctx = document.getElementById('averageChart').getContext('2d');
+      if (chartAvg) chartAvg.destroy();
+
+      const pointColors = X_AXIS_LABELS.map(label => label.includes('반영도') ? '#ffc107' : 'var(--primary-color)');
+
+      chartAvg = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: X_AXIS_LABELS,
+          datasets: [{
+            label: '항목별 평균 점수',
+            borderColor: 'var(--primary-color)',
+            backgroundColor: 'rgba(30, 64, 175, 0.1)',
+            pointBackgroundColor: pointColors,
+            data: averageScores,
+            pointRadius: 6,
+            borderWidth: 3,
+            fill: 'start',
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              grid: { color: '#f1f1f1' },
+              title: { display: true, text: '평균 점수 (5점 만점)', font: { size: 12 } }
+            },
+            x: {
+              grid: { color: '#f1f1f1' },
+              title: { display: true, text: '평가 항목', font: { size: 12 } },
+              ticks: { font: { size: 10 } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: `총 ${fileCount}개 파일의 항목별 평균 추이`, font: { size: 14 } },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.85)',
+              titleColor: 'white',
+              bodyColor: 'white',
+              callbacks: {
+                title: (context) => {
+                  const index = context[0].dataIndex;
+                  const labelPrefix = X_AXIS_LABELS[index];
+                  return `${labelPrefix}: ${allDescriptions[index]}`;
+                },
+                label: (context) => `평균: ${context.parsed.y}`,
+              },
+              bodyFont: { size: 12 },
+              titleFont: { size: 14, weight: 'bold' },
+              multiKeyBackground: 'transparent'
+            }
+          }
+        }
+      });
+    }
+
+    function drawRawDataChart(allRawScores, allDescriptions) {
+      const ctx = document.getElementById('rawDataChart').getContext('2d');
+      if (chartRaw) chartRaw.destroy();
+
+      const datasets = allRawScores.map((data, index) => {
+        const color = `hsl(${index * 360 / allRawScores.length}, 60%, 50%)`;
+        return {
+          label: data.student,
+          data: data.scores,
+          borderColor: color,
+          backgroundColor: 'transparent',
+          pointRadius: 2,
+          borderWidth: 1.5,
+          fill: false,
+          tension: 0.3,
+        };
+      });
+
+      chartRaw = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: X_AXIS_LABELS,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              grid: { color: '#f1f1f1' },
+              title: { display: true, text: '점수', font: { size: 12 } }
+            },
+            x: {
+              grid: { color: '#f1f1f1' },
+              title: { display: true, text: '평가 항목', font: { size: 12 } },
+              ticks: { font: { size: 10 } }
+            }
+          },
+          plugins: {
+            legend: {
+              display: allRawScores.length <= 10,
+              position: 'bottom',
+              labels: { boxWidth: 10, font: { size: 9 } }
+            },
+            title: { display: true, text: '개별 학생 점수 추이 (원 데이터)', font: { size: 14 } },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              backgroundColor: 'rgba(0,0,0,0.85)',
+              titleColor: 'white',
+              bodyColor: 'white',
+              callbacks: {
+                title: (context) => {
+                  const index = context[0].dataIndex;
+                  const labelPrefix = X_AXIS_LABELS[index];
+                  return `${labelPrefix}: ${allDescriptions[index]}`;
+                },
+                label: (context) => `${context.dataset.label}: ${context.parsed.y}`,
+              },
+              bodyFont: { size: 12 },
+              titleFont: { size: 14, weight: 'bold' },
+              multiKeyBackground: 'transparent'
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+
+</html>
